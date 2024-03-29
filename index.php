@@ -1,27 +1,33 @@
 <?php
 require_once 'config.php';
-require_once SOURCE_BASE . 'partials/header.php';
 
-$rpath = str_replace(BASE_CONTEXT_PATH, '', $_SERVER['REQUEST_URI']);
-$method = strtolower($_SERVER['REQUEST_METHOD']);
+require_once SOURCE_BASE . 'libs/helper.php';
+require_once SOURCE_BASE . 'libs/auth.php';
+require_once SOURCE_BASE . 'libs/router.php';
 
-route($rpath,$method);
-function route($rpath,$method) {
-    if($rpath === '') {
-        $rpath = 'home';
-    }
+require_once SOURCE_BASE . 'models/abstract.model.php';
+require_once SOURCE_BASE . 'models/user.model.php';
+
+require_once SOURCE_BASE . 'libs/message.php';
+
+
+require_once SOURCE_BASE . 'db/datasource.php';
+require_once SOURCE_BASE . 'db/user.query.php';
+
+use function lib\route;
+session_start();
+
+try {
+    require_once SOURCE_BASE . 'partials/header.php';
     
-    $targetFile = SOURCE_BASE . "controllers/{$rpath}.php";
+    $rpath = str_replace(BASE_CONTEXT_PATH, '', CURRENT_URI);
+    $method = strtolower($_SERVER['REQUEST_METHOD']);
     
-    if(!file_exists($targetFile)) {
-        require_once SOURCE_BASE . 'views/404.php';
-        return;
-    } 
-    require_once $targetFile;
-
-    $fn = "\\controller\\{$rpath}\\{$method}";
-
-    $fn();
+    route($rpath,$method);
+    
+    require_once SOURCE_BASE . 'partials/footer.php';
+} catch(Throwable $e) {
+    echo 'おかしい様です';
 }
-require_once SOURCE_BASE . 'partials/footer.php';
+
 ?>
